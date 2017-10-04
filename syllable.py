@@ -128,7 +128,7 @@ def findSyllables(input):
                     if x>=len(o)-1:
                         break
                     else:
-                        x=substring[x+1:].index(o[-(m+1)])+2
+                        substring=substring[x+1:]
                 except:
                     t+=2
             ##print i,x,t
