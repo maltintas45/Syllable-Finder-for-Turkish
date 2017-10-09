@@ -17,7 +17,7 @@ if __name__ == '__main__':
     
     #prepare to all their halm 
     start_time=t.time()
-    raw=readFromFile("trwiki-20140806-corpus.xml")
+    raw=readFromFile("sometxt")
     pieces=raw.split(" ")
     portion = len(pieces)/cpu_count
     syl_string=range(cpu_count)
