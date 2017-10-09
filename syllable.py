@@ -6,6 +6,7 @@ import sys
 import copy as cp
 from string import maketrans
 import re
+import time
 #import tqdm
 
 reload(sys)
@@ -65,13 +66,13 @@ def isTheyEqual(a,b):
     return a.lower()==b.lower()
 
 def toLower(string):
-    upperSpec=["Â","Ç","Ğ","I","İ","Î","Ö","Ş","Ü"]
-    lowerSpec=["â","ç","ğ","ı","i","î","ö","ş","ü"]
+    upperSpec=["Â","Ç","Ğ","I","İ","Î","Ö","Ş","Ü","’"]
+    lowerSpec=["â","ç","ğ","ı","i","î","ö","ş","ü","'"]
     for i in range(len(upperSpec)):
         string=string.replace(upperSpec[i],lowerSpec[i])
     return string.lower()
 
-def findSyllables(input,willItReturnOriginal=False):    
+def findSyllables(input,willItReturnOriginal=False,output_name="syllabelled_data"):    
     # input : a string that you want to syllable
     # willItReturnOriginal : do it 'True' if you want the syllabeled string with special chars, otherwise it
     # NOTE!this function returns lower case characters
@@ -167,6 +168,6 @@ def findSyllables(input,willItReturnOriginal=False):
     # write the output in file
     out= str("~".join(output))
     ##print out
-    with open("syllabelled_data.txt", "w") as text_file:
+    with open(output_name+".txt", "w") as text_file:
         text_file.write(out)    
     return output
