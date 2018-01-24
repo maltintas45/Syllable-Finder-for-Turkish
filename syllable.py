@@ -5,12 +5,14 @@ import numpy as np
 import sys
 import copy as cp
 from string import maketrans
-import re
 import time
-#import tqdm
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
+# to close printing to console
+# if you would like to see print outputs on console please do these;
+#       * make the following two lines as comments
+#       * restart kernel 
+#reload(sys)
+#sys.setdefaultencoding('utf-8')
 
 # define vowel characters
 vowels=["a","e","ı","i","o","ö","u","ü","â","Â","î","Î"]
@@ -65,34 +67,33 @@ def findSyllableCount(string):
 def isTheyEqual(a,b):
     return a.lower()==b.lower()
 
-def toLower(string):
+def prepareString(binput):
+    uinput=binput.decode("utf-8").lower()    
     upperSpec=["Â","Ç","Ğ","I","İ","Î","Ö","Ş","Ü","’"]
-    lowerSpec=["â","ç","ğ","ı","i","î","ö","ş","ü","'"]
+    lowerSpec=["â","ç","ğ","ı","i","î","ö","ş","ü","'"]    
+    binput=uinput.encode("utf-8","ignore")
     for i in range(len(upperSpec)):
-        string=string.replace(upperSpec[i],lowerSpec[i])
-    return string.lower()
+        binput=binput.replace(upperSpec[i],lowerSpec[i])   
+   
+    for i in range(len(speTurkishChars)):
+        binput=binput.replace(speTurkishChars[i],matTurkishChars[i])
+    
+    return binput;
 
-def findSyllables(input,willItReturnOriginal=False,output_name="syllabelled_data"):    
+def findSyllables(string="Maharet güzeli görebilmektir, Sevmenin sırrına erebilmektir.",willItReturnOriginal=True,output_name="syllabelled_data"):    
     # input : a string that you want to syllable
     # willItReturnOriginal : do it 'True' if you want the syllabeled string with special chars, otherwise it
-    # NOTE!this function returns lower case characters
-    
-    if input=="":
-        input="Maharet güzeli görebilmektir, Sevmenin sırrına erebilmektir."
-    input=toLower(input)  
-    uinput=input.decode("utf-8")
-    string=uinput.encode("utf-8","ignore")
-    
+    tic=time.clock()
+    print "finding syllables is started"
+    original_input=cp.copy(string).decode("utf-8")
+    string=prepareString(string)   
     
     # convert string VC format
-    string=string.lower()
     trantab = maketrans(intab, outtab)
-    for i in range(len(speTurkishChars)):
-        string=string.replace(speTurkishChars[i],matTurkishChars[i])
-    pattern= string.translate(trantab, '')
+    pattern= string.translate(trantab)
     
     # find syllables start indexes
-    print "finding syllables start indexes.."
+    print "\tfinding syllables start indexes.."
     voInd=findAllIndex(pattern)
     ##print voInd, pattern, string
     syInd=[]
@@ -118,7 +119,7 @@ def findSyllables(input,willItReturnOriginal=False,output_name="syllabelled_data
     ##print pattern, syInd
     
     # find syllables
-    print "finding syllables.."
+    print "\tfinding syllables.."
     puncInd=findPuncIndex(pattern)
     syInd=sorted(syInd+puncInd)
     output=[]
@@ -128,46 +129,23 @@ def findSyllables(input,willItReturnOriginal=False,output_name="syllabelled_data
             output.append(string[syInd[i]:syInd[i+1]])
         except:
             output.append(string[syInd[i]:])
-    ##print "output:",output  
+    #print "output:",output  
     if(willItReturnOriginal==True):
         #convert specific characters to original ones
-        print "converting specific characters to original ones.."
+        print "\tconverting specific characters to original ones.."
         i=0
         k=0
-        substring=""
-        oriSyll=""
-        cand=""
-        for o in output:    
-            substring=input[i:]        
-            ##print o,"  ",input[i:i+len(o)]," ",substring 
-            t=0
-            x=0        
-            if input[i:i+len(o)].lower()!=o:            
-                for m in range(len(o)):
-                    try:
-                        ##print o[-(m+1)], substring[:2*len(o)]
-                        x=substring[:2*len(o)].index(o[-(m+1)])+1
-                        if x>=len(o)-1:
-                            break
-                        else:
-                            substring=substring[x+1:]
-                    except:
-                        t+=2
-                ##print i,x,t
-                oriSyll=input[i:i+x+t]
-                ##print oriSyll
-                output[k]=oriSyll
-                i+=len(o)+findNumberOfSpecChar(oriSyll)
-            else:
-                i+=len(o)    
+        for o in output:
+            #print o,":",o.decode("utf-8"),"-->",i,"-",i+len(o.decode("utf-8")), original_input[i:i+len(o.decode("utf-8"))]
+            output[k]=original_input[i:i+len(o.decode("utf-8"))].encode("utf-8","ignore")
+            i+=len(o.decode("utf-8"))
             k+=1
-    #print(input)    
-    #print (output)
-    #findSyllableCount(input)
-    
+            
     # write the output in file
     out= str("~".join(output))
     ##print out
     with open(output_name+".txt", "w") as text_file:
-        text_file.write(out)    
+        text_file.write(out)
+    toc=time.clock()
+    print "finding syllables is finished and saved '",output_name,"' file in ",toc-tic
     return output
